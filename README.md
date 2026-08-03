@@ -1,36 +1,5 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+실제 Supabase 프로젝트 생성 후 .env.example을 .env.local로 복사해 값 채우기
+supabase init 실행 (CLI 버전에 맞는 config.toml 생성 — 로컬엔 CLI가 없어 이건 직접 생성하지 않았습니다)
+supabase db reset으로 마이그레이션+seed 적용 → bun run db:types로 실제 타입 재생성 (지금 타입은 손으로 작성한 것)
+로그인 흐름은 아직 없어서 현재 저장은 전부 IP 기반 익명 편집만 동작합니다 (로그인 UI는 로드맵에 별도 명시 안 됨 — 필요하시면 알려주세요)
+Playwright e2e는 로컬 Supabase/브라우저가 없어 이번엔 세팅하지 않았습니다
