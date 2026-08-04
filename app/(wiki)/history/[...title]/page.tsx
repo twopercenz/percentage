@@ -3,6 +3,7 @@ import { fullTitleHref, parseFullTitle } from "@/lib/wiki/title";
 import { getDocumentByFullTitle, getRevisionsByDocumentId } from "@/lib/wiki/queries";
 import { getUsernamesByIds } from "@/lib/wiki/profiles";
 import { editorDisplayName } from "@/lib/wiki/editorDisplay";
+import { ByteDiffBadge } from "@/components/wiki/ByteDiffBadge";
 
 export default async function HistoryPage({
   params,
@@ -25,7 +26,7 @@ export default async function HistoryPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold">{parsed.fullTitle} 역사</h1>
+      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">{parsed.fullTitle} 역사</h1>
       <ul className="divide-y divide-[var(--border)]">
         {revisions.map((revision, index) => {
           const previous = revisions[index + 1];
@@ -36,22 +37,12 @@ export default async function HistoryPage({
                 {new Date(revision.created_at).toLocaleString("ko-KR")}
               </time>
               <span>{editorDisplayName(revision, usernameById)}</span>
-              <span
-                className={
-                  revision.byte_diff > 0
-                    ? "text-emerald-600"
-                    : revision.byte_diff < 0
-                      ? "text-red-600"
-                      : "text-[var(--muted)]"
-                }
-              >
-                {revision.byte_diff > 0 ? `+${revision.byte_diff}` : revision.byte_diff}
-              </span>
+              <ByteDiffBadge byteDiff={revision.byte_diff} />
               <span className="text-[var(--muted)]">{revision.comment}</span>
               {previous ? (
                 <Link
                   href={`${fullTitleHref("/diff", parsed.fullTitle)}?from=${previous.rev_number}&to=${revision.rev_number}`}
-                  className="ml-auto text-[var(--accent)]"
+                  className="ml-auto text-[var(--accent)] hover:text-[var(--accent-secondary)]"
                 >
                   이전과 비교
                 </Link>

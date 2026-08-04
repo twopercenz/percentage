@@ -1,126 +1,403 @@
-// 손으로 작성한 초기 타입입니다. 로컬/원격 Supabase 프로젝트에 연결한 뒤
-// `bun run db:types`로 재생성하고, 이후로는 직접 수정하지 않습니다.
-
-export type RevisionType = "create" | "modify" | "delete" | "revert" | "move";
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
-      profiles: {
+      backlinks: {
         Row: {
-          id: string;
-          username: string;
-          created_at: string;
-          permissions: string[];
-          is_blocked: boolean;
-        };
+          created_at: string
+          from_document_id: string
+          id: string
+          to_full_title: string
+        }
         Insert: {
-          id: string;
-          username: string;
-          created_at?: string;
-          permissions?: string[];
-          is_blocked?: boolean;
-        };
-        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
-        Relationships: [];
-      };
+          created_at?: string
+          from_document_id: string
+          id?: string
+          to_full_title: string
+        }
+        Update: {
+          created_at?: string
+          from_document_id?: string
+          id?: string
+          to_full_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backlinks_from_document_id_fkey"
+            columns: ["from_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_categories: {
+        Row: {
+          category_full_title: string
+          created_at: string
+          document_id: string
+          id: string
+        }
+        Insert: {
+          category_full_title: string
+          created_at?: string
+          document_id: string
+          id?: string
+        }
+        Update: {
+          category_full_title?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_categories_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
-          id: string;
-          namespace: string;
-          title: string;
-          full_title: string;
-          current_revision_id: string | null;
-          is_deleted: boolean;
-          redirect_target: string | null;
-          updated_at: string;
-        };
+          current_revision_id: string | null
+          full_title: string
+          id: string
+          is_deleted: boolean
+          namespace: string
+          redirect_target: string | null
+          title: string
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          namespace: string;
-          title: string;
-          full_title: string;
-          current_revision_id?: string | null;
-          is_deleted?: boolean;
-          redirect_target?: string | null;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["documents"]["Insert"]>;
+          current_revision_id?: string | null
+          full_title: string
+          id?: string
+          is_deleted?: boolean
+          namespace: string
+          redirect_target?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          current_revision_id?: string | null
+          full_title?: string
+          id?: string
+          is_deleted?: boolean
+          namespace?: string
+          redirect_target?: string | null
+          title?: string
+          updated_at?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "documents_current_revision_id_fkey";
-            columns: ["current_revision_id"];
-            isOneToOne: false;
-            referencedRelation: "revisions";
-            referencedColumns: ["id"];
+            foreignKeyName: "documents_current_revision_id_fkey"
+            columns: ["current_revision_id"]
+            isOneToOne: false
+            referencedRelation: "revisions"
+            referencedColumns: ["id"]
           },
-        ];
-      };
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          is_blocked: boolean
+          permissions: string[]
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          is_blocked?: boolean
+          permissions?: string[]
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_blocked?: boolean
+          permissions?: string[]
+          username?: string
+        }
+        Relationships: []
+      }
       revisions: {
         Row: {
-          id: string;
-          document_id: string;
-          rev_number: number;
-          content: string;
-          comment: string | null;
-          type: RevisionType;
-          editor_user_id: string | null;
-          editor_ip_hash: string | null;
-          editor_ip_display: string | null;
-          byte_size: number;
-          byte_diff: number;
-          is_hidden: boolean;
-          created_at: string;
-        };
+          byte_diff: number
+          byte_size: number
+          comment: string | null
+          content: string
+          created_at: string
+          document_id: string
+          editor_ip_display: string | null
+          editor_ip_hash: string | null
+          editor_user_id: string | null
+          id: string
+          is_hidden: boolean
+          rev_number: number
+          type: string
+        }
         Insert: {
-          id?: string;
-          document_id: string;
-          rev_number: number;
-          content: string;
-          comment?: string | null;
-          type: RevisionType;
-          editor_user_id?: string | null;
-          editor_ip_hash?: string | null;
-          editor_ip_display?: string | null;
-          byte_size?: number;
-          byte_diff?: number;
-          is_hidden?: boolean;
-          created_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["revisions"]["Insert"]>;
+          byte_diff?: number
+          byte_size?: number
+          comment?: string | null
+          content?: string
+          created_at?: string
+          document_id: string
+          editor_ip_display?: string | null
+          editor_ip_hash?: string | null
+          editor_user_id?: string | null
+          id?: string
+          is_hidden?: boolean
+          rev_number: number
+          type: string
+        }
+        Update: {
+          byte_diff?: number
+          byte_size?: number
+          comment?: string | null
+          content?: string
+          created_at?: string
+          document_id?: string
+          editor_ip_display?: string | null
+          editor_ip_hash?: string | null
+          editor_user_id?: string | null
+          id?: string
+          is_hidden?: boolean
+          rev_number?: number
+          type?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "revisions_document_id_fkey";
-            columns: ["document_id"];
-            isOneToOne: false;
-            referencedRelation: "documents";
-            referencedColumns: ["id"];
+            foreignKeyName: "revisions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "revisions_editor_user_id_fkey";
-            columns: ["editor_user_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
+            foreignKeyName: "revisions_editor_user_id_fkey"
+            columns: ["editor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
-        ];
-      };
-    };
-    Views: Record<string, never>;
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
       create_revision: {
         Args: {
-          p_namespace: string;
-          p_title: string;
-          p_content: string;
-          p_comment: string | null;
-          p_editor_user_id: string | null;
-          p_editor_ip_hash: string | null;
-          p_editor_ip_display: string | null;
-        };
-        Returns: Database["public"]["Tables"]["revisions"]["Row"];
-      };
-    };
-    Enums: Record<string, never>;
-  };
-};
+          p_comment: string
+          p_content: string
+          p_editor_ip_display: string
+          p_editor_ip_hash: string
+          p_editor_user_id: string
+          p_namespace: string
+          p_title: string
+        }
+        Returns: {
+          byte_diff: number
+          byte_size: number
+          comment: string | null
+          content: string
+          created_at: string
+          document_id: string
+          editor_ip_display: string | null
+          editor_ip_hash: string | null
+          editor_user_id: string | null
+          id: string
+          is_hidden: boolean
+          rev_number: number
+          type: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "revisions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      sync_document_links: {
+        Args: {
+          p_categories: string[]
+          p_document_id: string
+          p_link_targets: string[]
+        }
+        Returns: undefined
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {},
+  },
+} as const
+

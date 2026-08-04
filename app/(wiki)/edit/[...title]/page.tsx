@@ -18,13 +18,13 @@ export default async function EditPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold">{parsed.fullTitle} 편집</h1>
+      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">{parsed.fullTitle} 편집</h1>
       <form action={action} className="flex flex-col gap-3">
         <textarea
           name="content"
           defaultValue={revision?.content ?? ""}
           rows={20}
-          className="w-full rounded-md border border-[var(--border)] bg-transparent p-3 font-mono text-sm outline-none focus:border-[var(--accent)]"
+          className="w-full rounded-md border border-[var(--border)] bg-[var(--code-background)] p-3 font-mono text-sm outline-none focus:border-[var(--accent-secondary)]"
         />
         <input
           type="text"
@@ -35,7 +35,7 @@ export default async function EditPage({
         />
         <button
           type="submit"
-          className="self-start rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white"
+          className="self-start rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-secondary)]"
         >
           저장
         </button>

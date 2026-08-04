@@ -36,7 +36,10 @@ export function parseFullTitle(segments: string[]): ParsedTitle {
   return { namespace: DEFAULT_NAMESPACE, title: decoded, fullTitle: decoded };
 }
 
-export function fullTitleHref(base: "/w" | "/edit" | "/history" | "/diff", fullTitle: string): string {
+export function fullTitleHref(
+  base: "/w" | "/edit" | "/history" | "/diff" | "/backlink",
+  fullTitle: string,
+): string {
   const encodedSegments = fullTitle.split("/").map(encodeURIComponent).join("/");
   return `${base}/${encodedSegments}`;
 }

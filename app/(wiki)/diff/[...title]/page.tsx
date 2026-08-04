@@ -46,18 +46,18 @@ export default async function DiffPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold">
+      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">
         {parsed.fullTitle} r{fromRevision.rev_number} → r{toRevision.rev_number}
       </h1>
-      <pre className="overflow-x-auto rounded-md border border-[var(--border)] p-3 font-mono text-sm leading-6">
+      <pre className="overflow-x-auto rounded-md border border-[var(--border)] bg-[var(--code-background)] p-3 font-mono text-sm leading-6">
         {ops.map((op, index) => (
           <div
             key={index}
             className={
               op.type === "add"
-                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                ? "bg-[var(--success)]/10 text-[var(--success)]"
                 : op.type === "remove"
-                  ? "bg-red-500/10 text-red-700 dark:text-red-400"
+                  ? "bg-[var(--danger)]/10 text-[var(--danger)]"
                   : ""
             }
           >

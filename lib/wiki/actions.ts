@@ -7,6 +7,7 @@ import { can, type Actor } from "@/lib/acl/can";
 import { getClientIp, hashIp, maskIp } from "@/lib/ip";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { fullTitleHref, parseFullTitle } from "@/lib/wiki/title";
+import { collectCategoryTargets, collectInternalLinkTargets, parse } from "@/lib/namumark/parser";
 
 export async function saveRevision(titleSegments: string[], formData: FormData) {
   const parsed = parseFullTitle(titleSegments);
@@ -41,18 +42,31 @@ export async function saveRevision(titleSegments: string[], formData: FormData) 
 
   checkRateLimit(rateLimitKey ?? "unknown");
 
-  const { error } = await supabase.rpc("create_revision", {
+  // supabase gen types는 RPC의 nullable 파라미터를 string으로만 표기한다(생성기 한계).
+  // DB 함수 시그니처는 실제로 이 값들을 NULL로 받으므로 타입만 맞춰 캐스팅한다.
+  const { data: revision, error } = await supabase.rpc("create_revision", {
     p_namespace: parsed.namespace,
     p_title: parsed.title,
     p_content: content,
-    p_comment: comment,
-    p_editor_user_id: user?.id ?? null,
-    p_editor_ip_hash: editorIpHash,
-    p_editor_ip_display: editorIpDisplay,
+    p_comment: comment as string,
+    p_editor_user_id: (user?.id ?? null) as string,
+    p_editor_ip_hash: editorIpHash as string,
+    p_editor_ip_display: editorIpDisplay as string,
   });
 
   if (error) {
     throw new Error(`저장에 실패했습니다: ${error.message}`);
+  }
+
+  const ast = parse(content);
+  const { error: syncError } = await supabase.rpc("sync_document_links", {
+    p_document_id: revision.document_id,
+    p_categories: collectCategoryTargets(ast),
+    p_link_targets: collectInternalLinkTargets(ast),
+  });
+
+  if (syncError) {
+    throw new Error(`분류·역링크 갱신에 실패했습니다: ${syncError.message}`);
   }
 
   redirect(fullTitleHref("/w", parsed.fullTitle));

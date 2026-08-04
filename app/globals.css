@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --border: #e5e5e5;
-  --muted: #737373;
-  --accent: #2563eb;
+  color-scheme: dark;
+  --background: #0d1117;
+  --foreground: #e6edf3;
+  --border: #30363d;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-secondary: #79c0ff;
+  --code-background: #161b22;
+  --success: #3fb950;
+  --danger: #f85149;
 }
 
 @theme inline {
@@ -14,29 +19,28 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-code-background: var(--code-background);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-interop);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --border: #262626;
-    --muted: #a3a3a3;
-    --accent: #60a5fa;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family:
+    var(--font-sans),
     "Pretendard Variable",
     Pretendard,
-    var(--font-sans),
     -apple-system,
     BlinkMacSystemFont,
     "Malgun Gothic",
     sans-serif;
+}
+
+::selection {
+  background: var(--accent-secondary);
+  color: var(--background);
 }
