@@ -13,7 +13,7 @@ export default async function SearchPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">{query ? `"${query}" 검색 결과` : "문서 검색"}</h1>
+      <h1 className="mb-4 text-xl font-bold">{query ? `"${query}" 검색 결과` : "문서 검색"}</h1>
 
       <form action="/search" className="mb-6 flex gap-2">
         <input

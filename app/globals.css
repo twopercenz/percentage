@@ -9,8 +9,12 @@
   --accent: #58a6ff;
   --accent-secondary: #79c0ff;
   --code-background: #161b22;
+  --surface: #161b22;
   --success: #3fb950;
   --danger: #f85149;
+  /* 구조용 강조색(내비게이션, 분류 바, 문단 제목, 목차) — 본문 링크는 계속 --accent(파랑)를 쓴다. */
+  --accent-warm: #d29922;
+  --accent-warm-secondary: #e3b341;
 }
 
 @theme inline {
@@ -21,8 +25,11 @@
   --color-accent: var(--accent);
   --color-accent-secondary: var(--accent-secondary);
   --color-code-background: var(--code-background);
+  --color-surface: var(--surface);
   --color-success: var(--success);
   --color-danger: var(--danger);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-warm-secondary: var(--accent-warm-secondary);
   --font-sans: var(--font-interop);
   --font-mono: var(--font-geist-mono);
 }

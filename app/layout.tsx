@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import "./globals.css";
 
 const interop = localFont({
@@ -49,8 +50,9 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <Header />
-        <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
         <Footer />
+        <ScrollToTopButton />
       </body>
     </html>
   );

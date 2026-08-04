@@ -15,7 +15,7 @@ export default async function RecentChangesPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">최근 변경</h1>
+      <h1 className="mb-4 text-xl font-bold">최근 변경</h1>
 
       {revisions.length === 0 ? (
         <p className="text-[var(--muted)]">아직 변경 내역이 없습니다.</p>

@@ -13,7 +13,7 @@ export default async function BacklinkPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">{parsed.fullTitle}의 역링크</h1>
+      <h1 className="mb-4 text-xl font-bold">{parsed.fullTitle}의 역링크</h1>
 
       {backlinks.length === 0 ? (
         <p className="text-[var(--muted)]">이 문서를 링크하는 다른 문서가 없습니다.</p>

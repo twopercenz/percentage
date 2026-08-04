@@ -46,7 +46,7 @@ export default async function DiffPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">
+      <h1 className="mb-4 text-xl font-bold">
         {parsed.fullTitle} r{fromRevision.rev_number} → r{toRevision.rev_number}
       </h1>
       <pre className="overflow-x-auto rounded-md border border-[var(--border)] bg-[var(--code-background)] p-3 font-mono text-sm leading-6">

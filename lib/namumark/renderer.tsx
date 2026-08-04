@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { fullTitleHref } from "@/lib/wiki/title";
+import { ChevronIcon } from "@/components/ui/icons";
 import type {
   BlockNode,
   DocumentNode,
@@ -299,14 +300,15 @@ function renderSection(section: Section, key: string, context: RenderContext): R
   const anchorId = slugifyAnchor(inlineToPlainText(section.heading.children));
 
   return (
-    <details key={key} id={anchorId} open className="my-4">
-      <summary className="cursor-pointer list-outside marker:text-[var(--muted)]">
-        <HeadingTag className="inline text-lg font-bold text-[var(--accent)]">
+    <details key={key} id={anchorId} open className="group my-4">
+      <summary className="flex cursor-pointer list-none items-center gap-1">
+        <ChevronIcon className="h-4 w-4 shrink-0 text-[var(--muted)] transition-transform group-open:rotate-90" />
+        <HeadingTag className="inline text-lg font-bold text-[var(--accent-warm)]">
           <span className="mr-2 text-sm font-normal text-[var(--muted)]">{section.number}</span>
           {renderInlineNodes(section.heading.children, context)}
         </HeadingTag>
       </summary>
-      <div className="mt-1 pl-1">{renderSectionBody(section, key, context)}</div>
+      <div className="mt-1 pl-5">{renderSectionBody(section, key, context)}</div>
     </details>
   );
 }
@@ -314,4 +316,41 @@ function renderSection(section: Section, key: string, context: RenderContext): R
 export function renderDocument(document: DocumentNode, context: RenderContext = {}): ReactNode {
   const root = buildSections(document.children);
   return renderSectionBody(root, "root", context);
+}
+
+export type TocEntry = {
+  level: number;
+  number: string;
+  title: string;
+  anchorId: string;
+  children: TocEntry[];
+};
+
+// 문서의 제목(heading)만 훑어 목차 트리를 만든다. 번호 매기기 규칙은
+// buildSections()와 동일하지만, 렌더링용 블록 내용은 담지 않는 가벼운 트리다.
+export function buildTableOfContents(document: DocumentNode): TocEntry[] {
+  const counters = [0, 0, 0, 0, 0, 0];
+  const root: TocEntry[] = [];
+  const stack: { level: number; children: TocEntry[] }[] = [{ level: 0, children: root }];
+
+  for (const block of document.children) {
+    if (block.type !== "heading") continue;
+
+    const level = block.level;
+    counters[level - 1]++;
+    for (let i = level; i < counters.length; i++) counters[i] = 0;
+    const number = `${counters.slice(0, level).join(".")}.`;
+    const title = inlineToPlainText(block.children);
+    const anchorId = slugifyAnchor(title);
+
+    while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+      stack.pop();
+    }
+
+    const entry: TocEntry = { level, number, title, anchorId, children: [] };
+    stack[stack.length - 1].children.push(entry);
+    stack.push({ level, children: entry.children });
+  }
+
+  return root;
 }

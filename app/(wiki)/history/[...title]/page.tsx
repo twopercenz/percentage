@@ -26,7 +26,7 @@ export default async function HistoryPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">{parsed.fullTitle} 역사</h1>
+      <h1 className="mb-4 text-xl font-bold">{parsed.fullTitle} 역사</h1>
       <ul className="divide-y divide-[var(--border)]">
         {revisions.map((revision, index) => {
           const previous = revisions[index + 1];

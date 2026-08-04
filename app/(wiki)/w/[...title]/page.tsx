@@ -7,8 +7,11 @@ import {
   getRevisionById,
 } from "@/lib/wiki/queries";
 import { collectCategoryTargets, collectInternalLinkTargets, parse } from "@/lib/namumark/parser";
-import { renderDocument } from "@/lib/namumark/renderer";
+import { buildTableOfContents, renderDocument } from "@/lib/namumark/renderer";
 import { CategoryList } from "@/components/wiki/CategoryList";
+import { TableOfContents } from "@/components/wiki/TableOfContents";
+import { ActionButton } from "@/components/wiki/ActionButton";
+import { BacklinkIcon, CompareIcon, EditIcon, HistoryIcon } from "@/components/ui/icons";
 
 export default async function DocumentPage({
   params,
@@ -26,34 +29,53 @@ export default async function DocumentPage({
   const linkTargets = ast ? collectInternalLinkTargets(ast) : [];
   const categories = ast ? collectCategoryTargets(ast) : [];
   const existingTitles = await getExistingFullTitles([...linkTargets, ...categories]);
+  const toc = ast ? buildTableOfContents(ast) : [];
 
   const categoryMembers =
     parsed.namespace === "분류" ? await getCategoryMembers(parsed.fullTitle) : [];
 
   return (
     <article>
-      <div className="mb-4 flex items-center justify-between gap-4 border-b border-[var(--border)] pb-3">
-        <h1 className="text-2xl font-bold text-[var(--accent)]">{parsed.fullTitle}</h1>
-        <nav className="flex gap-3 text-sm text-[var(--muted)]">
-          <Link href={fullTitleHref("/edit", parsed.fullTitle)} className="hover:text-[var(--accent-secondary)]">
-            편집
-          </Link>
-          <Link href={fullTitleHref("/history", parsed.fullTitle)} className="hover:text-[var(--accent-secondary)]">
-            역사
-          </Link>
-          <Link href={fullTitleHref("/diff", parsed.fullTitle)} className="hover:text-[var(--accent-secondary)]">
-            비교
-          </Link>
-          <Link href={fullTitleHref("/backlink", parsed.fullTitle)} className="hover:text-[var(--accent-secondary)]">
-            역링크
-          </Link>
-        </nav>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">{parsed.fullTitle}</h1>
+        <div className="flex flex-wrap gap-2">
+          <ActionButton
+            href={fullTitleHref("/edit", parsed.fullTitle)}
+            icon={<EditIcon className="h-4 w-4" />}
+            label="편집"
+          />
+          <ActionButton
+            href={fullTitleHref("/history", parsed.fullTitle)}
+            icon={<HistoryIcon className="h-4 w-4" />}
+            label="역사"
+          />
+          <ActionButton
+            href={fullTitleHref("/diff", parsed.fullTitle)}
+            icon={<CompareIcon className="h-4 w-4" />}
+            label="비교"
+          />
+          <ActionButton
+            href={fullTitleHref("/backlink", parsed.fullTitle)}
+            icon={<BacklinkIcon className="h-4 w-4" />}
+            label="역링크"
+          />
+        </div>
       </div>
+
+      {revision ? (
+        <p className="mb-4 text-xs text-[var(--muted)]">
+          최근 수정 시각: {new Date(revision.created_at).toLocaleString("ko-KR")}
+        </p>
+      ) : null}
+
+      <CategoryList categories={categories} existingTitles={existingTitles} />
 
       {ast ? (
         <>
-          <div className="namumark">{renderDocument(ast, { existingTitles })}</div>
-          <CategoryList categories={categories} existingTitles={existingTitles} />
+          <TableOfContents entries={toc} />
+          <div className="namumark border-t border-[var(--border)] pt-4">
+            {renderDocument(ast, { existingTitles })}
+          </div>
         </>
       ) : (
         <div className="py-16 text-center text-[var(--muted)]">

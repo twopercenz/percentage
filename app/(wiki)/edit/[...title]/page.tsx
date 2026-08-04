@@ -18,7 +18,7 @@ export default async function EditPage({
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-[var(--accent)]">{parsed.fullTitle} 편집</h1>
+      <h1 className="mb-4 text-xl font-bold">{parsed.fullTitle} 편집</h1>
       <form action={action} className="flex flex-col gap-3">
         <textarea
           name="content"
