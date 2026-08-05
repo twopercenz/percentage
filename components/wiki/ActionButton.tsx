@@ -13,7 +13,7 @@ export function ActionButton({
   return (
     <Link
       href={href}
-      className="flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted)] hover:border-[var(--accent-warm)] hover:text-[var(--accent-warm)]"
+      className="flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
     >
       {icon}
       {label}

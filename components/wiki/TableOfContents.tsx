@@ -14,7 +14,7 @@ function TocList({ entries }: { entries: TocEntry[] }) {
         <li key={entry.anchorId} className="py-0.5">
           <Link
             href={`#${entry.anchorId}`}
-            className="text-sm text-[var(--accent-warm)] hover:text-[var(--accent-warm-secondary)]"
+            className="text-sm text-[var(--accent)] hover:text-[var(--accent-secondary)]"
           >
             {entry.number} {entry.title}
           </Link>

@@ -95,6 +95,36 @@ export function ArrowUpIcon(props: IconProps) {
   );
 }
 
+export function MoveIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 9V5h4" />
+      <path d="M5 5l6 6" />
+      <path d="M19 15v4h-4" />
+      <path d="M19 19l-6-6" />
+    </Icon>
+  );
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 7h16" />
+      <path d="M9 7V4h6v3" />
+      <path d="M6 7l1 13h10l1-13" />
+    </Icon>
+  );
+}
+
+export function UndoIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h11a5 5 0 0 1 0 10h-1" />
+    </Icon>
+  );
+}
+
 // 브랜드 마크: 슬로건 "쌓으면, 보입니다"를 형상화한 계단식 막대.
 export function LogoMark(props: IconProps) {
   return (

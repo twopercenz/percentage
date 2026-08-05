@@ -1,17 +1,34 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { fullTitleHref, parseFullTitle } from "@/lib/wiki/title";
 import {
   getCategoryMembers,
   getDocumentByFullTitle,
+  getDocumentCount,
   getExistingFullTitles,
   getRevisionById,
 } from "@/lib/wiki/queries";
-import { collectCategoryTargets, collectInternalLinkTargets, parse } from "@/lib/namumark/parser";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import {
+  collectCategoryTargets,
+  collectInternalLinkTargets,
+  hasPagecountMacro,
+  hasTocMacro,
+  parse,
+} from "@/lib/namumark/parser";
 import { buildTableOfContents, renderDocument } from "@/lib/namumark/renderer";
+import { resolveIncludes } from "@/lib/wiki/include";
 import { CategoryList } from "@/components/wiki/CategoryList";
 import { TableOfContents } from "@/components/wiki/TableOfContents";
 import { ActionButton } from "@/components/wiki/ActionButton";
-import { BacklinkIcon, CompareIcon, EditIcon, HistoryIcon } from "@/components/ui/icons";
+import {
+  BacklinkIcon,
+  CompareIcon,
+  EditIcon,
+  HistoryIcon,
+  MoveIcon,
+  TrashIcon,
+} from "@/components/ui/icons";
 
 export default async function DocumentPage({
   params,
@@ -21,6 +38,11 @@ export default async function DocumentPage({
   const { title } = await params;
   const parsed = parseFullTitle(title);
   const document = await getDocumentByFullTitle(parsed.fullTitle);
+
+  if (document?.redirect_target) {
+    redirect(fullTitleHref("/w", document.redirect_target));
+  }
+
   const revision = document?.current_revision_id
     ? await getRevisionById(document.current_revision_id)
     : null;
@@ -30,9 +52,22 @@ export default async function DocumentPage({
   const categories = ast ? collectCategoryTargets(ast) : [];
   const existingTitles = await getExistingFullTitles([...linkTargets, ...categories]);
   const toc = ast ? buildTableOfContents(ast) : [];
+  // 본문에 [목차]를 이미 썼으면 그 자리에서 렌더되므로, 위쪽에 또 띄우지 않는다
+  // (각주가 [각주]를 쓰면 자동 추가를 건너뛰는 것과 같은 패턴).
+  const showTopToc = ast ? !hasTocMacro(ast) : false;
+  // [pagecount]는 DB 조회가 필요해서, 문서에 실제로 쓰였을 때만 조회한다.
+  const pageCount = ast && hasPagecountMacro(ast) ? await getDocumentCount() : undefined;
+  // [include(...)]도 마찬가지로 실제로 쓰였을 때만(directives가 비어 있으면
+  // resolveIncludes는 즉시 빈 Map을 돌려주고 추가 조회를 하지 않는다) 틀을 조회한다.
+  const includedTemplates = ast ? await resolveIncludes(ast) : undefined;
 
   const categoryMembers =
     parsed.namespace === "분류" ? await getCategoryMembers(parsed.fullTitle) : [];
+
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <article>
@@ -59,6 +94,20 @@ export default async function DocumentPage({
             icon={<BacklinkIcon className="h-4 w-4" />}
             label="역링크"
           />
+          {user && document && !document.is_deleted ? (
+            <>
+              <ActionButton
+                href={fullTitleHref("/move", parsed.fullTitle)}
+                icon={<MoveIcon className="h-4 w-4" />}
+                label="이동"
+              />
+              <ActionButton
+                href={fullTitleHref("/delete", parsed.fullTitle)}
+                icon={<TrashIcon className="h-4 w-4" />}
+                label="삭제"
+              />
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -68,13 +117,22 @@ export default async function DocumentPage({
         </p>
       ) : null}
 
-      <CategoryList categories={categories} existingTitles={existingTitles} />
-
-      {ast ? (
+      {document?.is_deleted ? (
+        <div className="py-16 text-center text-[var(--muted)]">
+          <p>삭제된 문서입니다.</p>
+          <Link
+            href={fullTitleHref("/history", parsed.fullTitle)}
+            className="mt-4 inline-block text-[var(--accent)] underline hover:text-[var(--accent-secondary)]"
+          >
+            역사에서 이전 리비전으로 되돌릴 수 있습니다
+          </Link>
+        </div>
+      ) : ast ? (
         <>
-          <TableOfContents entries={toc} />
+          <CategoryList categories={categories} existingTitles={existingTitles} />
+          {showTopToc ? <TableOfContents entries={toc} /> : null}
           <div className="namumark border-t border-[var(--border)] pt-4">
-            {renderDocument(ast, { existingTitles })}
+            {renderDocument(ast, { existingTitles, toc, pageCount, includedTemplates })}
           </div>
         </>
       ) : (

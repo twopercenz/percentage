@@ -79,4 +79,48 @@ describe("tokenizeBlocks", () => {
   it("표 행이 아닌 || 사용은 텍스트로 남는다", () => {
     expect(tokenizeBlocks("||")).toEqual([{ type: "text", text: "||" }]);
   });
+
+  it("##로 시작하는 줄은 통째로 사라진다", () => {
+    expect(tokenizeBlocks("본문1\n## 이건 주석\n본문2")).toEqual([
+      { type: "text", text: "본문1" },
+      { type: "text", text: "본문2" },
+    ]);
+  });
+
+  it("같은 줄에서 안 닫히는 {{{는 block-open이고 }}} 단독 줄까지가 내용이다", () => {
+    expect(tokenizeBlocks("{{{\ncode line\n}}}")).toEqual([
+      { type: "block-open", info: "" },
+      { type: "block-content", text: "code line" },
+      { type: "block-close" },
+    ]);
+  });
+
+  it("block-open의 info는 {{{ 뒤에 붙은 지시어 문자열이다", () => {
+    expect(tokenizeBlocks("{{{#!syntax python\nprint(1)\n}}}")).toEqual([
+      { type: "block-open", info: "#!syntax python" },
+      { type: "block-content", text: "print(1)" },
+      { type: "block-close" },
+    ]);
+  });
+
+  it("블록 안의 줄은 제목/리스트 등 다른 규칙으로 재해석되지 않는다", () => {
+    expect(tokenizeBlocks("{{{\n= 진짜 제목 아님 =\n* 진짜 리스트 아님\n}}}")).toEqual([
+      { type: "block-open", info: "" },
+      { type: "block-content", text: "= 진짜 제목 아님 =" },
+      { type: "block-content", text: "* 진짜 리스트 아님" },
+      { type: "block-close" },
+    ]);
+  });
+
+  it("같은 줄에서 닫히는 {{{...}}}는 block-open이 아니라 일반 텍스트로 남는다(인라인 처리용)", () => {
+    expect(tokenizeBlocks("{{{+1 크게}}}")).toEqual([{ type: "text", text: "{{{+1 크게}}}" }]);
+  });
+
+  it("닫는 }}}가 끝까지 없어도 크래시하지 않는다", () => {
+    expect(() => tokenizeBlocks("{{{\n안 닫힘")).not.toThrow();
+    expect(tokenizeBlocks("{{{\n안 닫힘")).toEqual([
+      { type: "block-open", info: "" },
+      { type: "block-content", text: "안 닫힘" },
+    ]);
+  });
 });

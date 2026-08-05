@@ -4,13 +4,15 @@ import type { Database } from "@/types/database";
 export type DocumentRow = Database["public"]["Tables"]["documents"]["Row"];
 export type RevisionRow = Database["public"]["Tables"]["revisions"]["Row"];
 
+// 삭제된 문서도 반환한다("삭제됨" 안내를 보여주려면 존재하지 않는 것과 구분해야
+// 한다). 빨간 링크 판정(getExistingFullTitles)이나 목록 조회는 여전히
+// is_deleted=false로 걸러서, 삭제된 문서는 그쪽에서는 "존재하지 않음"으로 취급한다.
 export async function getDocumentByFullTitle(fullTitle: string): Promise<DocumentRow | null> {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("documents")
     .select("*")
     .eq("full_title", fullTitle)
-    .eq("is_deleted", false)
     .maybeSingle();
 
   if (error) throw error;
@@ -55,6 +57,18 @@ export async function getRevisionByNumber(
 
   if (error) throw error;
   return data;
+}
+
+// [pagecount] 매크로 전용. 삭제된 문서는 "존재하지 않는 것"과 같은 기준으로 뺀다.
+export async function getDocumentCount(): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+  const { count, error } = await supabase
+    .from("documents")
+    .select("*", { count: "exact", head: true })
+    .eq("is_deleted", false);
+
+  if (error) throw error;
+  return count ?? 0;
 }
 
 export async function getExistingFullTitles(fullTitles: string[]): Promise<Set<string>> {

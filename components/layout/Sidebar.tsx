@@ -10,7 +10,7 @@ export async function Sidebar() {
     <aside className="w-full shrink-0 lg:w-64">
       <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-4">
         <div className="mb-3 flex items-center gap-1.5 text-sm font-bold text-[var(--foreground)]">
-          <ClockIcon className="h-4 w-4 text-[var(--accent-warm)]" />
+          <ClockIcon className="h-4 w-4 text-[var(--accent)]" />
           최근 변경
         </div>
         {revisions.length === 0 ? (
@@ -21,11 +21,11 @@ export async function Sidebar() {
               <li key={revision.id} className="flex items-center justify-between gap-2 text-sm">
                 <Link
                   href={fullTitleHref("/w", revision.documentFullTitle)}
-                  className="truncate text-[var(--accent-warm)] hover:text-[var(--accent-warm-secondary)]"
+                  className="truncate text-[var(--accent)] hover:text-[var(--accent-secondary)]"
                 >
                   {revision.documentFullTitle}
                 </Link>
-                <span className="shrink-0 text-xs text-[var(--muted)]">
+                <span className="shrink-0 font-mono text-xs text-[var(--muted)]">
                   {new Date(revision.created_at).toLocaleTimeString("ko-KR", {
                     hour: "2-digit",
                     minute: "2-digit",

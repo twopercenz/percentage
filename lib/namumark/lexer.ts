@@ -12,6 +12,9 @@ export type BlockToken =
   | { type: "quote"; depth: number; text: string }
   | { type: "hr" }
   | { type: "table-row"; cells: string[] }
+  | { type: "block-open"; info: string }
+  | { type: "block-content"; text: string }
+  | { type: "block-close" }
   | { type: "text"; text: string };
 
 // 줄 앞뒤 공백 없이 정확히 같은 개수의 '='로 감싸야 제목으로 인식한다.
@@ -85,24 +88,90 @@ function tryParseTableRow(line: string): { cells: string[] } | null {
   return { cells: trimmed.split("||").slice(1, -1) };
 }
 
+// 줄이 "{{{"로 시작하고, 같은 줄 안에서 "}}}"로 닫히지 않으면 여러 줄짜리 블록의
+// 시작이다(같은 줄에서 닫히는 "{{{+1 크게}}}" 같은 건 인라인 서식이라 여기서 건드리지
+// 않고 파서의 인라인 처리로 넘긴다).
+function tryParseBlockOpen(line: string): { info: string } | null {
+  if (!line.startsWith("{{{")) return null;
+  const rest = line.slice(3);
+  if (rest.includes("}}}")) return null;
+  return { info: rest };
+}
+
 export function tokenizeBlocks(source: string): BlockToken[] {
-  return source.split("\n").map((line): BlockToken => {
-    if (line.trim() === "") return { type: "blank" };
+  // "##"로 시작하는 줄은 주석이다. 렌더링에 전혀 관여하지 않도록 토큰화 전에
+  // 원본에서 걷어낸다(다른 규칙들이 주석을 따로 신경 쓸 필요가 없어진다).
+  const lines = source.split("\n").filter((line) => !line.startsWith("##"));
+
+  const tokens: BlockToken[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    const blockOpen = tryParseBlockOpen(line);
+    if (blockOpen) {
+      tokens.push({ type: "block-open", info: blockOpen.info });
+      i++;
+      // 닫는 "}}}" 줄을 만날 때까지는 다른 어떤 규칙(제목/리스트/표 등)으로도
+      // 재해석하지 않고 원문 그대로 보존한다 - 코드 블록 안에 "= 제목 ="이
+      // 들어있어도 그건 그냥 텍스트여야 한다.
+      while (i < lines.length && lines[i].trim() !== "}}}") {
+        tokens.push({ type: "block-content", text: lines[i] });
+        i++;
+      }
+      if (i < lines.length) {
+        tokens.push({ type: "block-close" });
+        i++;
+      }
+      // 파일이 끝날 때까지 닫는 "}}}"가 안 나오면 block-close 없이 그냥 끝난다
+      // (파서가 안 닫힌 블록도 크래시 없이 처리해야 한다).
+      continue;
+    }
+
+    if (line.trim() === "") {
+      tokens.push({ type: "blank" });
+      i++;
+      continue;
+    }
 
     const heading = tryParseHeading(line);
-    if (heading) return { type: "heading", ...heading };
+    if (heading) {
+      tokens.push({ type: "heading", ...heading });
+      i++;
+      continue;
+    }
 
     const listItem = tryParseListItem(line);
-    if (listItem) return { type: "list-item", ...listItem };
+    if (listItem) {
+      tokens.push({ type: "list-item", ...listItem });
+      i++;
+      continue;
+    }
 
-    if (isHorizontalRule(line)) return { type: "hr" };
+    if (isHorizontalRule(line)) {
+      tokens.push({ type: "hr" });
+      i++;
+      continue;
+    }
 
     const tableRow = tryParseTableRow(line);
-    if (tableRow) return { type: "table-row", ...tableRow };
+    if (tableRow) {
+      tokens.push({ type: "table-row", ...tableRow });
+      i++;
+      continue;
+    }
 
     const quote = tryParseQuote(line);
-    if (quote) return { type: "quote", ...quote };
+    if (quote) {
+      tokens.push({ type: "quote", ...quote });
+      i++;
+      continue;
+    }
 
-    return { type: "text", text: line };
-  });
+    tokens.push({ type: "text", text: line });
+    i++;
+  }
+
+  return tokens;
 }

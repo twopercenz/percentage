@@ -231,9 +231,74 @@ export type Database = {
           p_content: string
           p_editor_ip_display: string
           p_editor_ip_hash: string
-          p_editor_user_id: string
           p_namespace: string
           p_title: string
+        }
+        Returns: {
+          byte_diff: number
+          byte_size: number
+          comment: string | null
+          content: string
+          created_at: string
+          document_id: string
+          editor_ip_display: string | null
+          editor_ip_hash: string | null
+          editor_user_id: string | null
+          id: string
+          is_hidden: boolean
+          rev_number: number
+          type: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "revisions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      delete_document: {
+        Args: {
+          p_comment: string
+          p_full_title: string
+        }
+        Returns: {
+          byte_diff: number
+          byte_size: number
+          comment: string | null
+          content: string
+          created_at: string
+          document_id: string
+          editor_ip_display: string | null
+          editor_ip_hash: string | null
+          editor_user_id: string | null
+          id: string
+          is_hidden: boolean
+          rev_number: number
+          type: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "revisions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      move_document: {
+        Args: {
+          p_comment: string
+          p_from_full_title: string
+          p_to_namespace: string
+          p_to_title: string
+        }
+        Returns: string
+      }
+      revert_revision: {
+        Args: {
+          p_comment: string
+          p_document_id: string
+          p_editor_ip_display: string
+          p_editor_ip_hash: string
+          p_target_revision_id: string
         }
         Returns: {
           byte_diff: number

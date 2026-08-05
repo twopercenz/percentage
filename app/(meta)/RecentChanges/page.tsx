@@ -29,7 +29,7 @@ export default async function RecentChangesPage() {
               >
                 {revision.documentFullTitle}
               </Link>
-              <span className="text-[var(--muted)]">r{revision.rev_number}</span>
+              <span className="font-mono text-[var(--muted)]">r{revision.rev_number}</span>
               <span className="text-[var(--muted)]">{revisionTypeLabel(revision.type)}</span>
               <time className="text-[var(--muted)]">
                 {new Date(revision.created_at).toLocaleString("ko-KR")}
