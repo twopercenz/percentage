@@ -142,6 +142,15 @@ export function RequestIcon(props: IconProps) {
   );
 }
 
+export function UserIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
+    </Icon>
+  );
+}
+
 // 브랜드 마크: 슬로건 "쌓으면, 보입니다"를 형상화한 계단식 막대.
 export function LogoMark(props: IconProps) {
   return (

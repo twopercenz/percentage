@@ -1,8 +1,50 @@
 import Link from "next/link";
-import { ClockIcon, LogoMark, SearchIcon } from "@/components/ui/icons";
+import { ClockIcon, LogoMark, SearchIcon, UserIcon } from "@/components/ui/icons";
 import { SearchShortcut, SEARCH_INPUT_ID } from "@/components/layout/SearchShortcut";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getUsernamesByIds } from "@/lib/wiki/profiles";
+import { signOut } from "@/lib/auth/actions";
 
-export function Header() {
+async function AccountMenu() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return (
+      <Link
+        href="/member/login"
+        className="flex items-center gap-1.5 text-sm text-[var(--muted)] hover:text-[var(--accent)]"
+      >
+        <UserIcon className="h-4 w-4" />
+        로그인
+      </Link>
+    );
+  }
+
+  const usernameById = await getUsernamesByIds([user.id]);
+  const username = usernameById.get(user.id) ?? "(알 수 없음)";
+
+  return (
+    <div className="flex items-center gap-3 text-sm">
+      <Link
+        href="/member/settings"
+        className="flex items-center gap-1.5 text-[var(--muted)] hover:text-[var(--accent)]"
+      >
+        <UserIcon className="h-4 w-4" />
+        {username}
+      </Link>
+      <form action={signOut}>
+        <button type="submit" className="text-[var(--muted)] hover:text-[var(--accent)]">
+          로그아웃
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export async function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--background)]">
       <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">
@@ -37,6 +79,8 @@ export function Header() {
             </kbd>
           </div>
         </form>
+
+        <AccountMenu />
       </div>
       <SearchShortcut />
     </header>
