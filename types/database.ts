@@ -63,6 +63,105 @@ export type Database = {
           },
         ]
       }
+      discussion_comments: {
+        Row: {
+          author_ip_display: string | null
+          author_ip_hash: string | null
+          author_user_id: string | null
+          content: string
+          created_at: string
+          discussion_id: string
+          id: string
+          type: string
+        }
+        Insert: {
+          author_ip_display?: string | null
+          author_ip_hash?: string | null
+          author_user_id?: string | null
+          content: string
+          created_at?: string
+          discussion_id: string
+          id?: string
+          type?: string
+        }
+        Update: {
+          author_ip_display?: string | null
+          author_ip_hash?: string | null
+          author_user_id?: string | null
+          content?: string
+          created_at?: string
+          discussion_id?: string
+          id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_comments_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discussion_comments_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussions: {
+        Row: {
+          created_at: string
+          creator_ip_display: string | null
+          creator_ip_hash: string | null
+          creator_user_id: string | null
+          document_id: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_ip_display?: string | null
+          creator_ip_hash?: string | null
+          creator_user_id?: string | null
+          document_id: string
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_ip_display?: string | null
+          creator_ip_hash?: string | null
+          creator_user_id?: string | null
+          document_id?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discussions_creator_user_id_fkey"
+            columns: ["creator_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_categories: {
         Row: {
           category_full_title: string
@@ -133,6 +232,54 @@ export type Database = {
           },
         ]
       }
+      edit_requests: {
+        Row: {
+          created_at: string
+          document_id: string
+          id: string
+          message: string
+          requester_ip_display: string | null
+          requester_ip_hash: string | null
+          requester_user_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          id?: string
+          message: string
+          requester_ip_display?: string | null
+          requester_ip_hash?: string | null
+          requester_user_id?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          id?: string
+          message?: string
+          requester_ip_display?: string | null
+          requester_ip_hash?: string | null
+          requester_user_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edit_requests_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "edit_requests_requester_user_id_fkey"
+            columns: ["requester_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -156,6 +303,50 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          reporter_ip_display: string | null
+          reporter_ip_hash: string | null
+          reporter_user_id: string | null
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          reporter_ip_display?: string | null
+          reporter_ip_hash?: string | null
+          reporter_user_id?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          reporter_ip_display?: string | null
+          reporter_ip_hash?: string | null
+          reporter_user_id?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_reporter_user_id_fkey"
+            columns: ["reporter_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       revisions: {
         Row: {
@@ -225,6 +416,106 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_discussion_comment: {
+        Args: {
+          p_content: string
+          p_discussion_id: string
+          p_editor_ip_display: string
+          p_editor_ip_hash: string
+        }
+        Returns: {
+          author_ip_display: string | null
+          author_ip_hash: string | null
+          author_user_id: string | null
+          content: string
+          created_at: string
+          discussion_id: string
+          id: string
+          type: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "discussion_comments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_discussion: {
+        Args: {
+          p_content: string
+          p_document_id: string
+          p_editor_ip_display: string
+          p_editor_ip_hash: string
+          p_title: string
+        }
+        Returns: {
+          created_at: string
+          creator_ip_display: string | null
+          creator_ip_hash: string | null
+          creator_user_id: string | null
+          document_id: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "discussions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_edit_request: {
+        Args: {
+          p_document_id: string
+          p_editor_ip_display: string
+          p_editor_ip_hash: string
+          p_message: string
+        }
+        Returns: {
+          created_at: string
+          document_id: string
+          id: string
+          message: string
+          requester_ip_display: string | null
+          requester_ip_hash: string | null
+          requester_user_id: string | null
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "edit_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_report: {
+        Args: {
+          p_editor_ip_display: string
+          p_editor_ip_hash: string
+          p_reason: string
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          reason: string
+          reporter_ip_display: string | null
+          reporter_ip_hash: string | null
+          reporter_user_id: string | null
+          status: string
+          target_id: string
+          target_type: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "reports"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_revision: {
         Args: {
           p_comment: string
@@ -318,6 +609,30 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "revisions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_discussion_status: {
+        Args: {
+          p_discussion_id: string
+          p_note?: string
+          p_status: string
+        }
+        Returns: {
+          created_at: string
+          creator_ip_display: string | null
+          creator_ip_hash: string | null
+          creator_user_id: string | null
+          document_id: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "discussions"
           isOneToOne: true
           isSetofReturn: false
         }

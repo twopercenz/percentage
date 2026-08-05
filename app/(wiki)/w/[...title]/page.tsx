@@ -24,9 +24,11 @@ import { ActionButton } from "@/components/wiki/ActionButton";
 import {
   BacklinkIcon,
   CompareIcon,
+  DiscussIcon,
   EditIcon,
   HistoryIcon,
   MoveIcon,
+  RequestIcon,
   TrashIcon,
 } from "@/components/ui/icons";
 
@@ -94,6 +96,16 @@ export default async function DocumentPage({
             icon={<BacklinkIcon className="h-4 w-4" />}
             label="역링크"
           />
+          <ActionButton
+            href={fullTitleHref("/discuss", parsed.fullTitle)}
+            icon={<DiscussIcon className="h-4 w-4" />}
+            label="토론"
+          />
+          <ActionButton
+            href={fullTitleHref("/edit-request", parsed.fullTitle)}
+            icon={<RequestIcon className="h-4 w-4" />}
+            label="편집 요청"
+          />
           {user && document && !document.is_deleted ? (
             <>
               <ActionButton
@@ -112,8 +124,12 @@ export default async function DocumentPage({
       </div>
 
       {revision ? (
-        <p className="mb-4 text-xs text-[var(--muted)]">
-          최근 수정 시각: {new Date(revision.created_at).toLocaleString("ko-KR")}
+        <p className="mb-4 flex flex-wrap items-center gap-x-2 text-xs text-[var(--muted)]">
+          <span>최근 수정 시각: {new Date(revision.created_at).toLocaleString("ko-KR")}</span>
+          <span>·</span>
+          <Link href={fullTitleHref("/report", parsed.fullTitle)} className="hover:text-[var(--danger)]">
+            문서 신고
+          </Link>
         </p>
       ) : null}
 

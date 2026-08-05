@@ -1,46 +1,11 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { can, type Actor } from "@/lib/acl/can";
-import { getClientIp, hashIp, maskIp } from "@/lib/ip";
-import { checkRateLimit } from "@/lib/rateLimit";
 import { fullTitleHref, parseFullTitle } from "@/lib/wiki/title";
+import { resolveEditorIdentity } from "@/lib/wiki/identity";
 import { collectCategoryTargets, collectInternalLinkTargets, parse } from "@/lib/namumark/parser";
-
-// 편집자 신원(로그인 사용자면 userId, 아니면 IP 해시)을 결정하고 저장 빈도를 제한한다.
-// create_revision/revert_revision처럼 편집자 식별이 필요한 모든 액션이 공유한다.
-async function resolveEditorIdentity(actorForCheck: { namespace: string }, action: "edit") {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const actor: Actor = { userId: user?.id ?? null, permissions: [] };
-  if (!can(action, actorForCheck, actor)) {
-    throw new Error("이 문서를 편집할 권한이 없습니다.");
-  }
-
-  let editorIpHash: string | null = null;
-  let editorIpDisplay: string | null = null;
-  let rateLimitKey = user?.id ?? null;
-
-  if (!user) {
-    const headersList = await headers();
-    const ip = getClientIp(headersList);
-    if (!ip) {
-      throw new Error("편집자 IP를 확인할 수 없습니다.");
-    }
-    editorIpHash = hashIp(ip);
-    editorIpDisplay = maskIp(ip);
-    rateLimitKey = editorIpHash;
-  }
-
-  checkRateLimit(rateLimitKey ?? "unknown");
-
-  return { supabase, user, editorIpHash, editorIpDisplay };
-}
 
 export async function saveRevision(titleSegments: string[], formData: FormData) {
   const parsed = parseFullTitle(titleSegments);

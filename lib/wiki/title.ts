@@ -37,7 +37,17 @@ export function parseFullTitle(segments: string[]): ParsedTitle {
 }
 
 export function fullTitleHref(
-  base: "/w" | "/edit" | "/history" | "/diff" | "/backlink" | "/move" | "/delete",
+  base:
+    | "/w"
+    | "/edit"
+    | "/history"
+    | "/diff"
+    | "/backlink"
+    | "/move"
+    | "/delete"
+    | "/discuss"
+    | "/edit-request"
+    | "/report",
   fullTitle: string,
 ): string {
   const encodedSegments = fullTitle.split("/").map(encodeURIComponent).join("/");
